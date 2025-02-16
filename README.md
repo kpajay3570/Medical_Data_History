@@ -166,4 +166,46 @@ SELECT doctor_id, COUNT(*) AS total_admissions FROM admissions GROUP BY doctor_i
 ```sql
 SELECT patient_id, AVG(amount) AS avg_billing FROM billing GROUP BY patient_id ORDER BY avg_billing DESC;
 ```
+### 32. Show all of the patients grouped into weight groups. Show the total amount of patients in each weight group. Order the list by the weight group descending. e.g. if they weigh 100 to 109 they are placed in the 100 weight group, 110-119 = 110 weight group, etc.
+```sql
+SELECT 
+    CASE 
+        WHEN weight BETWEEN 100 AND 109 THEN '100'
+        WHEN weight BETWEEN 110 AND 119 THEN '110'
+        WHEN weight BETWEEN 120 AND 129 THEN '120'
+        WHEN weight BETWEEN 130 AND 139 THEN '130'
+        WHEN weight BETWEEN 140 AND 149 THEN '140'
+        ELSE 'Other'
+    END AS weight_group,
+    COUNT(*) AS total_patients
+FROM patients
+GROUP BY weight_group
+ORDER BY weight_group DESC;
+```
+### 33. Show patient_id, weight, height, isObese from the patients table. Display isObese as a boolean 0 or 1. Obese is defined as weight(kg)/(height(m)). Weight is in units kg. Height is in units cm.
+```sql
+SELECT 
+    patient_id,
+    weight,
+    height,
+    CASE 
+        WHEN (weight / ((height / 100) * (height / 100))) >= 30 THEN 1
+        ELSE 0
+    END AS isObese
+FROM patients;
+```
+### 34. Show patient_id, first_name, last_name, and attending doctor's specialty. Show only the patients who have a diagnosis as 'Epilepsy' and the doctor's first name is 'Lisa'. Check patients, admissions, and doctors tables for required information.
+```sql
+SELECT p.patient_id, p.first_name, p.last_name, d.specialty 
+FROM patients p
+JOIN admissions a ON p.patient_id = a.patient_id
+JOIN doctors d ON a.doctor_id = d.doctor_id
+WHERE a.diagnosis = 'Epilepsy' AND d.first_name = 'Lisa';
+```
+### 35. All patients who have gone through admissions can see their medical documents on our site. Those patients are given a temporary password after their first admission. Show the patient_id and temp_password.
+```sql
+SELECT patient_id, temp_password 
+FROM admissions
+WHERE admission_date = (SELECT MIN(admission_date) FROM admissions GROUP BY patient_id);
+```
 
